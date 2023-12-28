@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style2.css">
+    
+    <title>Vücut Kütle İndeksi Hesaplama</title>
+</head>
+
+<body>
+    <header>
+        <div>
+            <a href="index.html" class="logo" style="text-decoration: none; color: inherit">sağlıklı yaşam için her şey</a>
+        </div> 
+        
+        <div class="login-options">
+            <a href="index.html">Anasayfa</a>
+            <a href="indeksHesap.html">Vücut Kütle İndeksi Hesaplama</a>
+            <a href="hesapSonuc.html">Hesaplama Sonuçları</a>
+            <a href="iletişim.html">İletişim</a>
+        </div>
+    </header>
+    
+    <section>
+        <h2>Vücut Kitle İndeksi Hesaplama</h2>
+      
+        <form action="/hesapla" method="post" onsubmit="hesaplaVKI();">
+            <div>
+                <br>
+                <label for="isim">Adınız:</label>
+                <br>
+                <input type="text" id="isim" name="isim" placeholder="Adınızı yazınız" required>
+            </div>
+            <div>
+                <label for="boyUzunlugu">Boy Uzunluğunuz (cm):</label>
+                <br>
+                <input type="text" id="boyUzunlugu" name="boyUzunlugu" placeholder="örn 182cm" required>
+            </div>
+          
+            <div>
+                <br>
+                <label for="vucutAgirligi">Vücut Ağırlığınız (kg):</label>
+                <br>
+                <input type="text" id="vucut-agirligi" name="vucutAgirligi" placeholder="örn 65kg" required>
+            </div>
+            
+            <div>
+                <br>
+                <label for="yas">Yaşınız:</label>
+                <br>
+                <input type="text" id="yas" name="yas" placeholder="yas " required>
+            </div>
+
+            <div>
+                <br>
+                <label for="cinsiyet">Cinsiyetiniz:</label><br>
+                <input type="text" id="cinsiyet" name="cinsiyet" placeholder="cinsiyet" required>
+                <br>
+            </div>
+            <br>
+            <button type="submit">Hesapla</button>
+            <br>
+            <br>
+            <div id="sonucAlani"></div>
+        </form>
+
+        <script>
+           // JavaScript Kodları
+            function hesaplaVKI() {
+                // Formdan gerekli bilgileri al
+                let boyUzunlugu = parseFloat(document.getElementById("boy-uzunlugu").value);
+                let vucutAgirligi = parseFloat(document.getElementById("vucut-agirligi").value);
+                let yas = parseInt(document.getElementById("yas").value);
+
+                // Giriş değerlerinin uygunluğunu kontrol et
+                if (!vucutAgirligi || !boyUzunlugu || vucutAgirligi <= 0 || boyUzunlugu <= 0 || isNaN(vucutAgirligi) || isNaN(boyUzunlugu) || isNaN(yas)) {
+                    alert("Geçersiz veri. Lütfen doğru bilgileri girin.");
+                    return;
+                }
+
+                // Vücut Kitle İndeksini Hesapla
+                const vki = vucutAgirligi / ((boyUzunlugu / 100) * (boyUzunlugu / 100));
+
+                // Geliştirme amaçlı konsola yazdır
+                console.log("Vücut Kitle İndeksi: " + vki.toFixed(2));
+
+                // Sonucu HTML sayfasına yazdır
+                let sonucAlanı = document.getElementById("sonucAlani");
+                sonucAlanı.innerHTML = "Vücut Kitle İndeksi: " + vki.toFixed(2);
+
+               
+            }
+        </script>
+    </section>
+
+    <footer>
+        &copy; Sağlıklı yaşam için her şey
+    </footer>
+</body>
+
+</html>

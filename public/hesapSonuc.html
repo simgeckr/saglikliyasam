@@ -1,0 +1,203 @@
+<!-- hesapSonuc.html -->
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style2.css">
+
+    <title>Hesaplama Sonuçları</title>
+</head>
+
+<body>
+    <header>
+        <div>
+            <a href="index.html" class="logo" style="text-decoration: none; color: inherit">Sağlıklı yaşam için her şey</a>
+        </div>
+
+        <div class="login-options">
+            <a href="index.html">Anasayfa</a>
+            <a href="indeksHesap.html">Vücut Kütle İndeksi Hesaplama</a>
+            <a href="hesapSonuc.html">Hesaplama Sonuçları</a>
+            <a href="iletişim.html">İletişim</a>
+        </div>
+    </header>
+
+    <section>
+        <h2>Hesaplama Sonuçları</h2>
+
+        <!-- MongoDB'den çekilen verilerin listeleneceği div -->
+        <div id="sonucListesi"></div>
+    </section>
+
+    <!-- Düzenleme Formu -->
+<div id="duzenleForm" style="display: none;">
+  <h3>Veriyi Düzenle</h3>
+  <form onsubmit="duzenleVKI(); ">
+    <input type="hidden" id="duzenleId">
+    <label for="duzenleIsim">İsim:</label>
+    <input type="text" id="duzenleIsim" required>
+    <br>
+    <label for="duzenleBoyUzunlugu">Boy Uzunluğu (cm):</label>
+    <input type="text" id="duzenleBoyUzunlugu" required>
+    <br>
+    <label for="duzenleVucutAgirligi">Vücut Ağırlığı (kg):</label>
+    <input type="text" id="duzenleVucutAgirligi" required>
+    <br>
+    <label for="duzenleYas">Yaş:</label>
+    <input type="text" id="duzenleYas" required>
+    <br>
+    <label for="duzenleCinsiyet">Cinsiyet:</label>
+    <input type="text" id="duzenleCinsiyet" required>
+    <br>
+    <button type="submit">Güncelle</button>
+    <button type="button" onclick="kapatDuzenleForm()">İptal</button>
+  </form>
+</div>
+    <footer>
+        &copy; Sağlıklı yaşam için her şey
+    </footer>
+
+
+
+<script>
+  // JavaScript Kodları
+  // MongoDB'den tüm veriyi çekip gösterme
+  fetch('/tumVeriler')
+    .then(response => response.json())
+    .then(veriler => {
+      const sonucListesi = document.getElementById('sonucListesi');
+      veriler.forEach(veri => {
+          // Verilerin tip dönüşümü
+      const boyUzunlugu = parseFloat(veri.boyUzunlugu);
+      const vucutAgirligi = parseFloat(veri.vucutAgirligi);
+
+      // VKI hesapla
+      const vki = vkiHesapla(boyUzunlugu, vucutAgirligi);
+
+
+        sonucListesi.innerHTML += `
+          <div>
+            <p>İsim: ${veri.isim}, Boy: ${veri.boyUzunlugu}, Ağırlık: ${veri.vucutAgirligi}, Yaş: ${veri.yas}, Cinsiyet: ${veri.cinsiyet}, VKI: ${vki}</p>
+            <button onclick="silVeri('${veri._id}')">Sil</button>
+            <button onclick="duzenleFormuGoster('${veri._id}', '${veri.isim}', '${veri.boyUzunlugu}', '${veri.vucutAgirligi}', '${veri.yas}', '${veri.cinsiyet}', '${veri.vki}')">Düzenle</button>
+          </div>
+        `;
+      });
+    })
+    .catch(error => console.error('Veri çekme hatası:', error));
+// VKI Hesaplama Fonksiyonu
+function vkiHesapla(boyUzunlugu, vucutAgirligi) {
+  // VKI formülü: VKI = vücut ağırlığı / (boy uzunluğu^2)
+  const boyUzunluguMetre = boyUzunlugu / 100; // cm'den m'ye çevir
+  const vki = vucutAgirligi / (boyUzunluguMetre * boyUzunluguMetre);
+  return vki.toFixed(2); // VKI'yi iki ondalık basamakla sınırla
+}
+  // Silme işlemi için
+  function silVeri(id) {
+    // Kullanıcıdan onay al
+    const onay = confirm("Bu veriyi silmek istediğinizden emin misiniz?");
+    
+    // Onay alındıysa silme işlemleri burada gerçekleştirilecek
+    if (onay) {
+      fetch(`/silVeri/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+          // Silme işlemi başarılı ise sayfayı yeniden yükle
+          if (data.success) {
+            location.reload();
+          } else {
+            console.error('Silme işlemi başarısız.');
+          }
+        })
+        .catch(error => console.error('Silme işlemi hatası:', error));
+    }
+  }
+
+  // Düzenleme formunu göster
+  function duzenleFormuGoster(id, isim, boyUzunlugu, vucutAgirligi, yas, cinsiyet, vki) {
+    const duzenleForm = document.getElementById('duzenleForm');
+    const duzenleId = document.getElementById('duzenleId');
+    const duzenleIsim = document.getElementById('duzenleIsim');
+    const duzenleBoyUzunlugu = document.getElementById('duzenleBoyUzunlugu');
+    const duzenleVucutAgirligi = document.getElementById('duzenleVucutAgirligi');
+    const duzenleYas = document.getElementById('duzenleYas');
+    const duzenleCinsiyet = document.getElementById('duzenleCinsiyet');
+
+    // Veriyi düzenleme formuna set et
+    duzenleId.value = id;
+    duzenleIsim.value = isim;
+    duzenleBoyUzunlugu.value = boyUzunlugu;
+    duzenleVucutAgirligi.value = vucutAgirligi;
+    duzenleYas.value = yas;
+    duzenleCinsiyet.value = cinsiyet;
+
+    // Düzenleme formunu göster
+    duzenleForm.style.display = 'block';
+  }
+
+  // Düzenleme formunu kapat
+  function kapatDuzenleForm() {
+    const duzenleForm = document.getElementById('duzenleForm');
+    duzenleForm.style.display = 'none';
+  }
+
+  // Düzenleme işlemi için
+  function duzenleVKI() {
+    // Formdan gerekli bilgileri al
+  // Formdan gerekli bilgileri al
+const duzenleId = document.getElementById("duzenleId").value;
+const duzenleIsim = document.getElementById("duzenleIsim").value;
+const duzenleBoyUzunlugu = document.getElementById("duzenleBoyUzunlugu").value;
+const duzenleVucutAgirligi = document.getElementById("duzenleVucutAgirligi").value;
+const duzenleYas = document.getElementById("duzenleYas").value;
+const duzenleCinsiyet = document.getElementById("duzenleCinsiyet").value;
+
+   
+
+    // Güncelleme işlemi için veriyi hazırla
+    const guncellenecekVeri = {
+      isim: duzenleIsim,
+      boyUzunlugu: duzenleBoyUzunlugu,
+      vucutAgirligi: duzenleVucutAgirligi,
+      yas: duzenleYas,
+      cinsiyet: duzenleCinsiyet
+    };
+
+    // Veriyi güncelleme endpoint'ine gönder
+    if (onay) {
+  // Veriyi güncelleme endpoint'ine gönder
+  fetch(`/duzenleVeri/${duzenleId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(guncellenecekVeri)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Güncelleme işlemi başarılı ise sayfayı yeniden yükle
+      if (data.success) {
+        location.reload();
+      } else {
+        console.error('Güncelleme işlemi başarısız.');
+      }
+    })
+    .catch(error => console.error('Güncelleme işlemi hatası:', error));
+}
+
+  }
+</script>
+
+<!-- ... -->
+
+</body>
+
+</html>
+
